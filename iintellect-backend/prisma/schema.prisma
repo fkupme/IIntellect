@@ -1,14 +1,146 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// Генератор клиента Prisma
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client-js" // Указывает, что используется Prisma Client для JavaScript/TypeScript
 }
 
+// Определение источника данных (PostgreSQL)
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "postgresql" // Используется PostgreSQL как база данных
+  url      = env("DATABASE_URL") // URL базы данных берется из переменной окружения
+}
+
+// Модель User (Пользователи)
+model User {
+  id            Int             @id @default(autoincrement()) // Уникальный ID пользователя
+  username      String          @unique // Уникальное имя пользователя
+  email         String          @unique // Уникальный email пользователя
+  password_hash String // Хэш пароля пользователя
+  created_at    DateTime        @default(now()) // Дата создания аккаунта
+  updated_at    DateTime        @updatedAt // Дата последнего обновления
+  role          String          @default("user") // Роль пользователя: "user", "premium", "admin"
+  phone         String?         @unique // Номер телефона (опционально)
+  first_name    String? // Имя пользователя (опционально)
+  last_name     String? // Фамилия пользователя (опционально)
+  second_name   String? // Отчество пользователя (опционально)
+  subscription  Subscription? // Связь с подписками пользователя
+  tests         Test[] // Связь с тестами, созданными пользователем
+  user_tests    UserTest[] // Связь с прохождениями тестов пользователем
+  Group         Group[] // Связь с группами, созданными пользователем
+  UserGroup     UserGroup[] // Связь с группами, в которых состоит пользователь
+  UserTestLimit UserTestLimit[] // Связь с лимитами на прохождение тестов
+}
+
+// Модель Subscription (Подписки)
+model Subscription {
+  id         Int       @id @default(autoincrement()) // Уникальный ID подписки
+  user_id    Int       @unique // ID пользователя, которому принадлежит подписка
+  plan       String // Тип подписки: "free_trial", "premium"
+  start_date DateTime  @default(now()) // Дата начала подписки
+  end_date   DateTime? // Дата окончания подписки (опционально)
+  is_active  Boolean   @default(true) // Статус активности подписки
+  user       User      @relation(fields: [user_id], references: [id]) // Связь с пользователем
+}
+
+// Модель Group (Группы)
+model Group {
+  id         Int         @id @default(autoincrement()) // Уникальный ID группы
+  name       String // Название группы
+  created_at DateTime    @default(now()) // Дата создания группы
+  updated_at DateTime    @updatedAt // Дата последнего обновления
+  creator_id Int // ID создателя группы
+  users      UserGroup[] // Связь с пользователями в группе
+  tests      Test[] // Связь с тестами, доступными группе
+  creator    User        @relation(fields: [creator_id], references: [id]) // Связь с создателем группы
+}
+
+// Модель UserGroup (Пользователи в группах)
+model UserGroup {
+  id        Int      @id @default(autoincrement()) // Уникальный ID записи о пользователе в группе
+  user_id   Int // ID пользователя
+  group_id  Int // ID группы
+  joined_at DateTime @default(now()) // Дата присоединения к группе
+  user      User     @relation(fields: [user_id], references: [id]) // Связь с пользователем
+  group     Group    @relation(fields: [group_id], references: [id]) // Связь с группой
+}
+
+// Модель Test (Тесты)
+model Test {
+  id          Int        @id @default(autoincrement()) // Уникальный ID теста
+  user_id     Int // ID пользователя, создавшего тест
+  title       String // Название теста
+  description String? // Описание теста (опционально)
+  created_at  DateTime   @default(now()) // Дата создания теста
+  updated_at  DateTime   @updatedAt // Дата последнего обновления
+  category    String? // Категория теста (опционально)
+  visibility  String     @default("public") // Видимость теста: "public", "private", "group"
+  group_id    Int? // ID группы, если тест приватный для группы
+  user        User       @relation(fields: [user_id], references: [id]) // Связь с создателем теста
+  questions   Question[] // Связь с вопросами теста
+  user_tests  UserTest[] // Связь с прохождениями теста
+  Group       Group?     @relation(fields: [groupId], references: [id]) // Связь с группой
+  groupId     Int?
+}
+
+// Модель UserTestLimit (Лимиты на прохождение тестов)
+model UserTestLimit {
+  id         Int      @id @default(autoincrement()) // Уникальный ID лимита
+  user_id    Int // ID пользователя
+  limit_type String // Тип лимита: "daily", "monthly"
+  used_count Int      @default(0) // Количество использованных попыток
+  reset_at   DateTime // Дата сброса лимита
+  user       User     @relation(fields: [user_id], references: [id]) // Связь с пользователем
+}
+
+// Модель Question (Вопросы)
+model Question {
+  id           Int          @id @default(autoincrement()) // Уникальный ID вопроса
+  test_id      Int // ID теста, к которому относится вопрос
+  title        String // Заголовок вопроса
+  text         String // Текст вопроса
+  created_at   DateTime     @default(now()) // Дата создания вопроса
+  updated_at   DateTime     @updatedAt // Дата последнего обновления
+  has_variants Boolean      @default(false) // Флаг наличия вариантов ответов
+  variants     String? // JSON-массив вариантов ответов (опционально)
+  test         Test         @relation(fields: [test_id], references: [id]) // Связь с тестом
+  answers      Answer[] // Связь с ответами на вопрос
+  user_answers UserAnswer[] // Связь с ответами пользователей
+}
+
+// Модель Answer (Ответы)
+model Answer {
+  id           Int          @id @default(autoincrement()) // Уникальный ID ответа
+  question_id  Int // ID вопроса, к которому относится ответ
+  answer       String // Текст ответа
+  comment      String? // Комментарий к ответу (опционально)
+  created_at   DateTime     @default(now()) // Дата создания ответа
+  updated_at   DateTime     @updatedAt // Дата последнего обновления
+  question     Question     @relation(fields: [question_id], references: [id]) // Связь с вопросом
+  user_answers UserAnswer[] // Связь с ответами пользователей
+}
+
+// Модель UserTest (Пройденные тесты)
+model UserTest {
+  id           Int          @id @default(autoincrement()) // Уникальный ID записи о прохождении теста
+  user_id      Int // ID пользователя
+  test_id      Int // ID теста
+  started_at   DateTime     @default(now()) // Дата начала прохождения теста
+  completed_at DateTime? // Дата завершения теста (опционально)
+  score        Float? // Общий балл за тест (опционально)
+  user         User         @relation(fields: [user_id], references: [id]) // Связь с пользователем
+  test         Test         @relation(fields: [test_id], references: [id]) // Связь с тестом
+  user_answers UserAnswer[] // Связь с ответами пользователя
+}
+
+// Модель UserAnswer (Ответы пользователей)
+model UserAnswer {
+  id           Int      @id @default(autoincrement()) // Уникальный ID ответа пользователя
+  user_test_id Int // ID записи о прохождении теста
+  question_id  Int // ID вопроса
+  answer       String // Текст ответа пользователя
+  is_correct   Boolean? // Флаг правильности ответа (опционально)
+  answered_at  DateTime @default(now()) // Дата ответа
+  answer_id    Int? // ID ответа из таблицы answers (опционально)
+  user_test    UserTest @relation(fields: [user_test_id], references: [id]) // Связь с прохождением теста
+  question     Question @relation(fields: [question_id], references: [id]) // Связь с вопросом
+  answer_ref   Answer?  @relation(fields: [answer_id], references: [id]) // Связь с ответом
 }
