@@ -7,8 +7,7 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
-
-  // Создание пользователя
+ 
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: createUserDto.email },
@@ -29,12 +28,10 @@ export class UsersService {
     });
   }
 
-  // Получение всех пользователей
   async findAll() {
     return this.prisma.user.findMany();
   }
 
-  // Получение пользователя по ID
   async findOne(id: number) {
     const user = await this.prisma.user.findUnique({ where: { id } });
 
@@ -45,7 +42,6 @@ export class UsersService {
     return user;
   }
 
-  // Обновление пользователя
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.prisma.user.findUnique({ where: { id } });
 
@@ -59,7 +55,6 @@ export class UsersService {
     });
   }
 
-  // Удаление пользователя
   async remove(id: number) {
     const user = await this.prisma.user.findUnique({ where: { id } });
 

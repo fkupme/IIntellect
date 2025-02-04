@@ -1,12 +1,12 @@
 // Генератор клиента Prisma
 generator client {
-  provider = "prisma-client-js" // Указывает, что используется Prisma Client для JavaScript/TypeScript
+  provider = "prisma-client-js"
 }
 
-// Определение источника данных (PostgreSQL)
+
 datasource db {
-  provider = "postgresql" // Используется PostgreSQL как база данных
-  url      = env("DATABASE_URL") // URL базы данных берется из переменной окружения
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // Модель User (Пользователи)

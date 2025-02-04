@@ -287,3 +287,90 @@ GitHub Actions или GitLab CI/CD.
 8. **answers → user_answer**: Если вопрос имеет варианты ответов, ответ пользователя связан с конкретным ответом из таблицы `answers`. Связь: `answer_id` в таблице `user_answer` ссылается на `id` в таблице `answers`.
 
 Этот анализ помогает понять структуру базы данных и связи между таблицами.
+
+# User Module
+
+## a) Создание пользователя
+
+### Request
+```bash
+POST /users
+```
+
+### Body
+```json
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "first_name": "John",
+  "last_name": "Doe"
+}
+```
+
+## b) Получение всех пользователей
+
+### Request
+```bash
+GET /users
+```
+
+## c) Обновление пользователя
+
+### Request
+```bash
+PUT /users/1
+```
+
+### Body
+```json
+{
+  "first_name": "Jonathan",
+  "phone": "+1234567890"
+}
+```
+
+## d) Удаление пользователя
+
+### Request
+```bash
+DELETE /users/1
+```
+
+6. Пример запросов
+a) Создание теста
+bash
+Copy
+1
+2
+3
+4
+5
+6
+POST /tests
+{
+  "title": "Math Test",
+  "description": "A test about mathematics",
+  "tags": ["Math", "Algebra"]
+}
+b) Получение всех тестов
+bash
+Copy
+1
+GET /tests
+c) Обновление теста
+bash
+Copy
+1
+2
+3
+4
+PUT /tests/1
+{
+  "title": "Updated Math Test"
+}
+d) Удаление теста
+bash
+Copy
+1
+DELETE /tests/1

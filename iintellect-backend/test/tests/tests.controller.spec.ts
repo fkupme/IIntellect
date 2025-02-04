@@ -8,6 +8,8 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 describe('TestsController', () => {
   let controller: TestsController;
@@ -35,7 +37,7 @@ describe('TestsController', () => {
       imports: [
         PassportModule.register({ defaultStrategy: 'jwt' }),
         JwtModule.register({
-          secret: 'yourSecretKey', // Замените на ваш секретный ключ
+          secret: process.env.JWT_SECRET || '123',
           signOptions: { expiresIn: '60m' },
         }),
       ],
