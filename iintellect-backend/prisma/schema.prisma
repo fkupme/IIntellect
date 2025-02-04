@@ -18,10 +18,10 @@ model User {
   created_at    DateTime        @default(now()) // Дата создания аккаунта
   updated_at    DateTime        @updatedAt // Дата последнего обновления
   role          String          @default("user") // Роль пользователя: "user", "premium", "admin"
-  phone         String?         @unique // Номер телефона (опционально)
-  first_name    String? // Имя пользователя (опционально)
-  last_name     String? // Фамилия пользователя (опционально)
-  second_name   String? // Отчество пользователя (опционально)
+  phone         String         @unique // Номер телефона 
+  first_name    String // Имя пользователя 
+  last_name     String // Фамилия пользователя
+  second_name   String // Отчество пользователя 
   subscription  Subscription? // Связь с подписками пользователя
   tests         Test[] // Связь с тестами, созданными пользователем
   user_tests    UserTest[] // Связь с прохождениями тестов пользователем
@@ -63,22 +63,52 @@ model UserGroup {
   group     Group    @relation(fields: [group_id], references: [id]) // Связь с группой
 }
 
+model Category {
+  id          Int     @id @default(autoincrement())
+  name        String // Название категории (например, "Математика")
+  description String? // Описание категории (опционально)
+  themes      Theme[] // Связь с темами
+  Test        Test[]
+}
+
+model Theme {
+  id          Int        @id @default(autoincrement())
+  name        String // Название темы (например, "Алгебра")
+  description String? // Описание темы (опционально)
+  categoryId  Int // Связь с категорией
+  category    Category   @relation(fields: [categoryId], references: [id])
+  subthemes   Subtheme[] // Связь с подтемами (если нужны подтемы)
+  tests       Test[] // Связь с тестами
+}
+
+model Subtheme {
+  id      Int    @id @default(autoincrement())
+  name    String // Название подтемы (например, "Линейные уравнения")
+  themeId Int // Связь с темой
+  theme   Theme  @relation(fields: [themeId], references: [id])
+  tests   Test[] // Связь с тестами
+}
+
 // Модель Test (Тесты)
 model Test {
-  id          Int        @id @default(autoincrement()) // Уникальный ID теста
-  user_id     Int // ID пользователя, создавшего тест
+  id          Int        @id @default(autoincrement())
   title       String // Название теста
-  description String? // Описание теста (опционально)
-  created_at  DateTime   @default(now()) // Дата создания теста
-  updated_at  DateTime   @updatedAt // Дата последнего обновления
-  category    String? // Категория теста (опционально)
-  visibility  String     @default("public") // Видимость теста: "public", "private", "group"
-  group_id    Int? // ID группы, если тест приватный для группы
-  user        User       @relation(fields: [user_id], references: [id]) // Связь с создателем теста
-  questions   Question[] // Связь с вопросами теста
-  user_tests  UserTest[] // Связь с прохождениями теста
-  Group       Group?     @relation(fields: [groupId], references: [id]) // Связь с группой
+  description String? // Описание теста
+  categoryId  Int? // ID категории (опционально, если тест может быть без категории)
+  category    Category?  @relation(fields: [categoryId], references: [id])
+  themeId     Int? // ID темы (опционально, если тест может быть без темы)
+  theme       Theme?     @relation(fields: [themeId], references: [id])
+  subthemeId  Int? // ID подтемы (опционально, если тест может быть без подтемы)
+  subtheme    Subtheme?  @relation(fields: [subthemeId], references: [id])
+  tags        String[] // Массив тегов
+  user_id     Int // ID пользователя, создавшего тест
+  user        User       @relation(fields: [user_id], references: [id])
+  questions   Question[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  Group       Group?     @relation(fields: [groupId], references: [id])
   groupId     Int?
+  UserTest    UserTest[]
 }
 
 // Модель UserTestLimit (Лимиты на прохождение тестов)
