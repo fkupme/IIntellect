@@ -1,4 +1,4 @@
-# План работы над проектом с использованием Nuxt.js, NestJS, Prisma и TypeScript
+# IIntellect
 
 ## 1. Общая информация о проекте
 
@@ -6,19 +6,19 @@
 
 ### Фронтенд:
 
-- **Vite + Nuxt.js**: Быстрый сборщик и фреймворк на базе Vue 3.
-- **TypeScript**: Статическая типизация для надежности кода.
-- **Pinia**: Современный менеджер состояния.
-- **Element Plus**: Библиотека готовых UI-компонентов.
-- **Fetch API / `useFetch`**: Встроенные инструменты для работы с API.
+- **Nuxt**
+- **TypeScript**
+- **Pinia**
+- **Element Plus**
+- **Fetch API / `useFetch`**
 
 ### Бэкенд:
 
-- **NestJS**: Мощный фреймворк для создания серверной части.
-- **TypeScript**: Статическая типизация для бэкенда.
-- **Prisma**: Современный ORM с автоматической генерацией типов.
-- **PostgreSQL**: Реляционная база данных.
-- **Hugging Face Inference API**: Интеграция с нейросетью.
+- **NestJS**
+- **TypeScript**
+- **Prisma**
+- **PostgreSQL**
+- **Hugging Face Inference API**
 
 ---
 
@@ -185,8 +185,8 @@ npm run start
 
 ### Выбор платформы для деплоя:
 
-- **Frontend**: Vercel, Netlify или AWS.
-- **Backend**: Heroku, AWS или Docker.
+- **Frontend**: Vercel.
+- **Backend**: Heroku.
 
 ### Настройка CI/CD:
 
@@ -194,7 +194,7 @@ GitHub Actions или GitLab CI/CD.
 
 ### Мониторинг и поддержка:
 
-Использовать инструменты мониторинга (например, **Sentry**).
+**Sentry**
 
 # Анализ диаграммы базы данных
 
@@ -285,5 +285,3 @@ GitHub Actions или GitLab CI/CD.
 6. **user_tests → user_answer**: Одна запись о прохождении теста может содержать много ответов. Связь: `user_test_id` в таблице `user_answer` ссылается на `id` в таблице `user_tests`.
 7. **questions → user_answer**: Каждый ответ пользователя связан с конкретным вопросом. Связь: `question_id` в таблице `user_answer` ссылается на `id` в таблице `questions`.
 8. **answers → user_answer**: Если вопрос имеет варианты ответов, ответ пользователя связан с конкретным ответом из таблицы `answers`. Связь: `answer_id` в таблице `user_answer` ссылается на `id` в таблице `answers`.
-
-Этот анализ помогает понять структуру базы данных и связи между таблицами.
