@@ -1,8 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateUserDto } from '../dto/update-user.dto';
+import { CreateUserDto, UpdateUserDto } from '../DTO/user.dto';
 
 @Injectable()
 export class UsersService {
@@ -62,6 +61,7 @@ export class UsersService {
       throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
     }
 
-    return this.prisma.user.delete({ where: { id } });
+    await this.prisma.user.delete({ where: { id } });
+    return { id };
   }
 }

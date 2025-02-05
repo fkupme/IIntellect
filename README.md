@@ -285,3 +285,199 @@ GitHub Actions или GitLab CI/CD.
 6. **user_tests → user_answer**: Одна запись о прохождении теста может содержать много ответов. Связь: `user_test_id` в таблице `user_answer` ссылается на `id` в таблице `user_tests`.
 7. **questions → user_answer**: Каждый ответ пользователя связан с конкретным вопросом. Связь: `question_id` в таблице `user_answer` ссылается на `id` в таблице `questions`.
 8. **answers → user_answer**: Если вопрос имеет варианты ответов, ответ пользователя связан с конкретным ответом из таблицы `answers`. Связь: `answer_id` в таблице `user_answer` ссылается на `id` в таблице `answers`.
+
+API endpoints:
+** tests **
+1. Create test:
+
+POST /tests
+### request body:
+```json
+{
+  "title": "Тест по математике",
+  "description": "Основы алгебры",
+  "categoryId": 1,
+  "themeId": 2,
+  "subthemeId": 3,
+  "tags": ["математика", "алгебра"],
+  "questions": [
+    {
+      "title": "Вопрос 1",
+      "text": "Как решить уравнение x + 2 = 5?",
+      "has_variants": true,
+      "variants": ["x = 3", "x = 7"],
+      "answers": [
+        { "answer": "x = 3", "comment": "Правильный ответ" },
+        { "answer": "x = 7", "comment": "Неправильный ответ" }
+      ]
+    }
+  ]
+}
+```
+### response:
+```json
+{
+  "id": 1,
+  "title": "Тест по математике",
+  "description": "Основы алгебры",
+  "categoryId": 1,
+  "themeId": 2,
+  "subthemeId": 3,
+  "tags": ["математика", "алгебра"],
+  "questions": [
+    {
+      "id": 1,
+      "title": "Вопрос 1",
+      "text": "Как решить уравнение x + 2 = 5?",
+      "has_variants": true,
+      "variants": ["x = 3", "x = 7"],
+      "answers": [
+        { "id": 1, "answer": "x = 3", "comment": "Правильный ответ" },
+        { "id": 2, "answer": "x = 7", "comment": "Неправильный ответ" }
+      ]
+    }
+  ]
+}
+```
+2. Получение теста по ID
+GET /tests/:id
+id — уникальный ID теста (например, 1).
+
+### response:
+```json
+{
+  "id": 1,
+  "title": "Тест по математике",
+  "description": "Основы алгебры",
+  "categoryId": 1,
+  "themeId": 2,
+  "subthemeId": 3,
+  "tags": ["математика", "алгебра"],
+  "questions": [
+    {
+      "id": 1,
+      "title": "Вопрос 1",
+      "text": "Как решить уравнение x + 2 = 5?",
+      "has_variants": true,
+      "variants": ["x = 3", "x = 7"],
+      "answers": [
+        { "id": 1, "answer": "x = 3", "comment": "Правильный ответ" },
+        { "id": 2, "answer": "x = 7", "comment": "Неправильный ответ" }
+      ]
+    }
+  ]
+}
+```
+3. Обновление теста:
+id — уникальный ID теста (например, 1).
+
+### request:
+```json
+{
+  "title": "Обновленный тест по математике",
+  "description": "Новые основы алгебры",
+  "categoryId": 1,
+  "themeId": 2,
+  "subthemeId": 3,
+  "tags": ["математика", "алгебра"],
+  "questions": [
+    {
+      "id": 1,
+      "text": "Как решить уравнение x + 3 = 8?",
+      "has_variants": true,
+      "variants": ["x = 5", "x = 10"],
+      "answers": [
+        { "id": 1, "answer": "x = 5", "comment": "Правильный ответ" }
+      ]
+    }
+  ]
+}
+```
+### response:
+```json
+{
+  "id": 1,
+  "title": "Обновленный тест по математике",
+  "description": "Новые основы алгебры",
+  "categoryId": 1,
+  "themeId": 2,
+  "subthemeId": 3,
+  "tags": ["математика", "алгебра"],
+  "questions": [
+    {
+      "id": 1,
+      "title": "Вопрос 1",
+      "text": "Как решить уравнение x + 3 = 8?",
+      "has_variants": true,
+      "variants": ["x = 5", "x = 10"],
+      "answers": [
+        { "id": 1, "answer": "x = 5", "comment": "Правильный ответ" }
+      ]
+    }
+  ]
+}
+```
+4. Удаление теста
+DELETE /tests/:id
+id — уникальный ID теста (например, 1).
+
+### response:
+```json
+{
+  "message": "Тест успешно удален"
+}
+```
+
+5. Получение списка всех тестов
+GET /tests
+#### Параметры (опционально)
+- categoryId — фильтр по категории (например, 1).
+- themeId — фильтр по теме (например, 2).
+- subthemeId — фильтр по подтеме (например, 3).
+
+Итоговый список эндпоинтов
+POST
+/tests
+Создание нового теста
+Да
+Нет
+GET
+/tests/:id
+Получение теста по ID
+Нет
+id
+PUT
+/tests/:id
+Обновление теста
+Да
+id
+DELETE
+/tests/:id
+Удаление теста
+Нет
+id
+GET
+/tests
+Получение списка всех тестов
+Нет
+Опционально:
+categoryId
+,
+themeId
+,
+subthemeId
+
+| Метод | Путь         | Описание                     | Параметры (опционально) | Тело запроса |
+|-------|--------------|------------------------------|-------------------------|--------------|
+| POST  | /tests       | Создание нового теста         |                         | Да           |
+| GET   | /tests/:id   | Получение теста по ID         | id                      | Нет          |
+| PUT   | /tests/:id   | Обновление теста              | id                      | Да           |
+| DELETE| /tests/:id   | Удаление теста                | id                      | Нет          |
+| GET   | /tests       | Получение списка всех тестов  | categoryId, themeId, subthemeId | Нет          |
+
+
+
+
+
+
+

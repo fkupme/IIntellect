@@ -11,7 +11,6 @@ describe('PrismaService', () => {
 
     prismaService = module.get<PrismaService>(PrismaService);
 
-    // Очищаем таблицу users перед каждым тестом
     await prismaService.user.deleteMany();
   });
 
@@ -21,9 +20,17 @@ describe('PrismaService', () => {
 
   describe('CRUD Operations', () => {
     const mockUser = {
-      username: `testuser-${Date.now()}`, // Генерируем уникальное имя
-      email: `test-${Date.now()}@example.com`, // Генерируем уникальный email
-      password_hash: 'hashedpassword',
+      id: 1,
+      username: 'existinguser',
+      email: 'existing@example.com',
+      password_hash: 'hashed_password',
+      role: 'user',
+      created_at: new Date(),
+      updated_at: new Date(),
+      first_name: 'John',
+      last_name: 'Doe',
+      second_name: 'Michael',
+      phone: '1234567890',
     };
 
     it('should create a user', async () => {

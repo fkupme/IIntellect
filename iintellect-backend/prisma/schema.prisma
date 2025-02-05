@@ -3,7 +3,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -18,7 +17,7 @@ model User {
   created_at    DateTime        @default(now()) // Дата создания аккаунта
   updated_at    DateTime        @updatedAt // Дата последнего обновления
   role          String          @default("user") // Роль пользователя: "user", "premium", "admin"
-  phone         String         @unique // Номер телефона 
+  phone         String          @unique // Номер телефона 
   first_name    String // Имя пользователя 
   last_name     String // Фамилия пользователя
   second_name   String // Отчество пользователя 
@@ -130,7 +129,7 @@ model Question {
   created_at   DateTime     @default(now()) // Дата создания вопроса
   updated_at   DateTime     @updatedAt // Дата последнего обновления
   has_variants Boolean      @default(false) // Флаг наличия вариантов ответов
-  variants     String? // JSON-массив вариантов ответов (опционально)
+  variants     String[] // JSON-массив вариантов ответов (опционально)
   test         Test         @relation(fields: [test_id], references: [id]) // Связь с тестом
   answers      Answer[] // Связь с ответами на вопрос
   user_answers UserAnswer[] // Связь с ответами пользователей
@@ -140,8 +139,8 @@ model Question {
 model Answer {
   id           Int          @id @default(autoincrement()) // Уникальный ID ответа
   question_id  Int // ID вопроса, к которому относится ответ
-  answer       String // Текст ответа
-  comment      String? // Комментарий к ответу (опционально)
+  answer       Json // Текст ответа
+  comment      String // Комментарий к ответу
   created_at   DateTime     @default(now()) // Дата создания ответа
   updated_at   DateTime     @updatedAt // Дата последнего обновления
   question     Question     @relation(fields: [question_id], references: [id]) // Связь с вопросом
@@ -166,6 +165,7 @@ model UserAnswer {
   id           Int      @id @default(autoincrement()) // Уникальный ID ответа пользователя
   user_test_id Int // ID записи о прохождении теста
   question_id  Int // ID вопроса
+  user_id      Int // ID пользователя
   answer       String // Текст ответа пользователя
   is_correct   Boolean? // Флаг правильности ответа (опционально)
   answered_at  DateTime @default(now()) // Дата ответа

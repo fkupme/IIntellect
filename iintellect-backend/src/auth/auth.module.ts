@@ -4,6 +4,8 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { PrismaModule } from 'src/prisma/prisma.module'
+
 
 
 
@@ -14,6 +16,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
+    PrismaModule,
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],

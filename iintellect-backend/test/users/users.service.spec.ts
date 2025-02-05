@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from '../../src/users/users.service';
 import { PrismaService } from '../../src/prisma/prisma.service';
-import { CreateUserDto } from '../../src/dto/create-user.dto';
-import { UpdateUserDto } from '../../src/dto/update-user.dto';
+import { CreateUserDto, UpdateUserDto } from '../../src/DTO/user.dto';
 import * as bcrypt from 'bcrypt';
 
 describe('UsersService', () => {
@@ -244,22 +243,22 @@ describe('UsersService', () => {
         last_name: null,
         second_name: null,
       });
+
       jest.spyOn(prisma.user, 'delete').mockResolvedValue({
         id: 1,
-        username: 'user1',
-        email: 'user1@example.com',
-        password_hash: 'hashed_password_1',
+        username: 'existinguser',
+        email: 'existing@example.com',
+        password_hash: 'hashed_password',
         role: 'user',
         created_at: new Date(),
         updated_at: new Date(),
-        phone: null,
-        first_name: null,
-        last_name: null,
-        second_name: null,
+        first_name: 'John',
+        last_name: 'Doe',
+        second_name: 'Michael',
+        phone: '1234567890',
       });
 
       const result = await service.remove(1);
-
       expect(result).toEqual({ id: 1 });
       expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 1 } });
     });
