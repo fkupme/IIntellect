@@ -27,6 +27,35 @@ model User {
   Group         Group[] // Связь с группами, созданными пользователем
   UserGroup     UserGroup[] // Связь с группами, в которых состоит пользователь
   UserTestLimit UserTestLimit[] // Связь с лимитами на прохождение тестов
+  Bage          Bage[] // Связь с бейджами пользователя
+  Experience    Experience[]
+  Rating        Rating[]
+}
+
+model Bage {
+  id          Int      @id @default(autoincrement()) // Уникальный ID бейджа
+  user_id     Int // ID пользователя
+  user        User     @relation(fields: [user_id], references: [id]) // Связь с пользователем
+  badge_type  String // Тип бейджа (например, "creator", "tester", "patron")
+  level       Int // Уровень бейджа
+  name        String // Название бейджа
+  description String // Описание бейджа
+  image       String // Путь к изображению бейджа
+  received_at DateTime @default(now()) // Дата получения бейджа
+
+  @@unique([user_id, badge_type, level]) // Уникальность для пользователя, типа бейджа и уровня
+}
+
+model Experience {
+  id         Int      @id @default(autoincrement()) // Уникальный ID записи
+  user_id    Int // ID пользователя
+  user       User     @relation(fields: [user_id], references: [id]) // Связь с пользователем
+  badge_type String // Тип бейджа (например, "creator", "tester", "patron")
+  exp        Int      @default(0) // Текущий опыт
+  level      Int      @default(1) // Текущий уровень
+  updated_at DateTime @updatedAt // Дата последнего обновления
+
+  @@unique([user_id, badge_type]) // Уникальность для пользователя и типа бейджа
 }
 
 // Модель Subscription (Подписки)
@@ -92,12 +121,13 @@ model Subtheme {
 model Test {
   id          Int        @id @default(autoincrement())
   title       String // Название теста
-  description String? // Описание теста
-  categoryId  Int? // ID категории (опционально, если тест может быть без категории)
+  description String? // Описание теста (опционально)
+  private     Boolean    @default(false) // Приватность теста (по умолчанию false)
+  categoryId  Int? // ID категории (опционально)
   category    Category?  @relation(fields: [categoryId], references: [id])
-  themeId     Int? // ID темы (опционально, если тест может быть без темы)
+  themeId     Int? // ID темы (опционально)
   theme       Theme?     @relation(fields: [themeId], references: [id])
-  subthemeId  Int? // ID подтемы (опционально, если тест может быть без подтемы)
+  subthemeId  Int? // ID подтемы (опционально)
   subtheme    Subtheme?  @relation(fields: [subthemeId], references: [id])
   tags        String[] // Массив тегов
   user_id     Int // ID пользователя, создавшего тест
@@ -108,6 +138,19 @@ model Test {
   Group       Group?     @relation(fields: [groupId], references: [id])
   groupId     Int?
   UserTest    UserTest[]
+  ratings     Rating[] // Связь с рейтингами (многие рейтинги для одного теста)
+}
+
+model Rating {
+  id          Int    @id @default(autoincrement()) // Уникальный ID рейтинга
+  test_id     Int // ID теста
+  user_id     Int // ID пользователя
+  rating      Int // Значение рейтинга
+  description String // Описание рейтинга
+  Test        Test   @relation(fields: [test_id], references: [id])
+  User        User   @relation(fields: [user_id], references: [id])
+
+  @@unique([test_id, user_id]) // Уникальность для пары тест-пользователь
 }
 
 // Модель UserTestLimit (Лимиты на прохождение тестов)
