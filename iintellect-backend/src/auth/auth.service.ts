@@ -1,14 +1,13 @@
-// auth.service.ts
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../user/user.service';
+import { UserService } from '../user/user.service';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UsersService,
+    private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService
   ) {}
@@ -27,7 +26,25 @@ export class AuthService {
     return user;
   }
 
-  // проверкa пользователя по payload из JWT
+  async validateOAuthUser(provider: string, providerId: string, email: string, firstName: string, lastName: string, secondName: string, phone: string) {
+    let user = await this.userService.findOneByProviderId(providerId);
+
+    if (!user) {
+      user = await this.userService.create({
+        username: email.split('@')[0],
+        email,
+        first_name: firstName ?? null,
+        last_name: lastName ?? null,
+        provider,
+        provider_id: providerId ?? null,
+        second_name: secondName ?? null,
+        phone: phone ?? null,
+      });
+    }
+
+    return user;
+  }
+
   async validateUser(payload: any) {
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },

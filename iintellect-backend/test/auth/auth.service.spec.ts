@@ -1,69 +1,83 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../../src/auth/auth.service';
+import { AuthService } from '@/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
-import { PrismaService } from '../../src/prisma/prisma.service'
+import { UserService } from '@/user/user.service';
+import { PrismaService } from '@/prisma/prisma.service';
+import { NotFoundException } from '@nestjs/common';
 
 describe('AuthService', () => {
-  let service: AuthService;
-  let prismaService: PrismaService;
+  let authService: AuthService;
+  let userService: UserService;
   let jwtService: JwtService;
+  let prismaService: PrismaService;
+
+  const mockUser = {
+    id: 1,
+    username: 'existinguser',
+    email: 'existing@example.com',
+    password_hash: 'hashed_password',
+    role: 'user',
+    created_at: new Date(),
+    updated_at: new Date(),
+    phone: '1234567890',
+    first_name: 'John',
+    last_name: 'Doe',
+    second_name: 'Michael',
+    provider: 'local',
+    provider_id: null,
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        {
-          provide: PrismaService,
-          useValue: {
-            user: {
-              findUnique: jest.fn(),
-            },
-          },
-        },
-        {
-          provide: JwtService,
-          useValue: {
-            sign: jest.fn(),
-          },
-        },
+        UserService,
+        PrismaService,
+        { provide: JwtService, useValue: { sign: jest.fn(() => 'mocked-token') } },
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
-    prismaService = module.get<PrismaService>(PrismaService);
+    authService = module.get<AuthService>(AuthService);
+    userService = module.get<UserService>(UserService);
     jwtService = module.get<JwtService>(JwtService);
+    prismaService = module.get<PrismaService>(PrismaService);
+
+    jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(authService).toBeDefined();
   });
 
   describe('validateUser', () => {
-    it('should return a user by id', async () => {
-      const payload = { sub: 1 };
-      const mockUser: User = { id: 1, username: 'testuser' } as User;
-      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+    it('should return a user by ID from JWT payload', async () => {
+      const payload = { sub: mockUser.id };
+      const result = await authService.validateUser(payload);
 
-      const result = await service.validateUser(payload);
       expect(result).toEqual(mockUser);
-      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
-        where: { id: payload.sub },
-      });
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { id: payload.sub } });
+    });
+
+    it('should throw an error if user is not found', async () => {
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(null);
+
+      const payload = { sub: 999 };
+      await expect(authService.validateUser(payload)).rejects.toThrow(
+        new NotFoundException('Пользователь не найден'),
+      );
     });
   });
 
   describe('login', () => {
     it('should return an access token', async () => {
-      const user: User = { id: 1, username: 'testuser' } as User;
-      const mockToken = 'mocked-token';
-      (jwtService.sign as jest.Mock).mockReturnValue(mockToken);
+      jest.spyOn(jwtService, 'sign').mockReturnValue('mocked-token');
 
-      const result = await service.login(user);
-      expect(result).toEqual({ access_token: mockToken });
+      const result = await authService.login(mockUser);
+
+      expect(result).toEqual({ access_token: 'mocked-token' });
       expect(jwtService.sign).toHaveBeenCalledWith({
-        username: user.username,
-        sub: user.id,
+        username: mockUser.username,
+        sub: mockUser.id,
       });
     });
   });

@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
-import { UsersModule } from './user/user.module';
+import { UserModule } from './user/user.module';
 import { TestModule } from './test/test.module';
 import { UserTestsModule } from './user-tests/user-tests.module';
 import { AuthModule } from './auth/auth.module';
@@ -12,7 +12,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 ConfigModule
 
 @Module({
-  imports: [PrismaModule, UsersModule, TestModule,  UserTestsModule, AuthModule,ConfigModule.forRoot({ isGlobal: true })],
+  imports: [PrismaModule, UserModule, TestModule,  UserTestsModule, AuthModule,ConfigModule.forRoot({ isGlobal: true })],
   controllers: [AppController],
   providers: [AppService,{
     provide: APP_GUARD,

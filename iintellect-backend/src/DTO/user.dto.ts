@@ -7,20 +7,33 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
 
+  @IsOptional()
   @MinLength(6)
-  password: string;
+  password?: string;
 
   @IsString()
+  @IsOptional()
   first_name: string;
 
   @IsString()
+  @IsOptional()
   last_name: string;
 
   @IsString()
+  @IsOptional()
   second_name: string;
 
   @IsString()
+  @IsOptional()
   phone: string;
+
+  @IsOptional()
+  @IsString()
+  provider?: string;
+
+  @IsOptional()
+  @IsString()
+  provider_id?: string;
 }
 
 export class UpdateUserDto {
@@ -43,4 +56,12 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @IsOptional()
+  @IsString()
+  provider?: string;
+
+  @IsOptional()
+  @IsString()
+  provider_id?: string;
 }

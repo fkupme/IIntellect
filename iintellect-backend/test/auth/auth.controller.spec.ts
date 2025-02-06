@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from '../../src/auth/auth.controller';
 import { AuthService } from '../../src/auth/auth.service';
-import { User } from '@prisma/client';
+import { UnauthorizedException } from '@nestjs/common';
+import { MockUser } from '../users/MockUser';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -14,6 +15,7 @@ describe('AuthController', () => {
         {
           provide: AuthService,
           useValue: {
+            validateCredentials: jest.fn(),
             login: jest.fn(),
           },
         },
@@ -30,13 +32,32 @@ describe('AuthController', () => {
 
   describe('login', () => {
     it('should log in a user', async () => {
-      const user: User = { id: 1, username: 'testuser', email: 'test@example.com' } as User;
+      const mockUser = MockUser.create();
       const mockToken = { access_token: 'mocked-token' };
-      (authService.login as jest.Mock).mockResolvedValue(mockToken);
 
-      const result = await controller.login(user);
+      jest
+        .spyOn(authService, 'validateCredentials')
+        .mockResolvedValue(mockUser);
+      jest.spyOn(authService, 'login').mockResolvedValue(mockToken);
+
+      const result = await controller.login('test@example.com', 'password123');
+
       expect(result).toEqual(mockToken);
-      expect(authService.login).toHaveBeenCalledWith(user);
+      expect(authService.validateCredentials).toHaveBeenCalledWith(
+        'test@example.com',
+        'password123',
+      );
+      expect(authService.login).toHaveBeenCalledWith(mockUser);
+    });
+
+    it('should throw an error if credentials are invalid', async () => {
+      jest
+        .spyOn(authService, 'validateCredentials')
+        .mockRejectedValue(new UnauthorizedException('Неверный пароль'));
+
+      await expect(
+        controller.login('test@example.com', 'wrongpassword'),
+      ).rejects.toThrow(new UnauthorizedException('Неверный пароль'));
     });
   });
 });

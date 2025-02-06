@@ -13,14 +13,16 @@ model User {
   id            Int             @id @default(autoincrement()) // Уникальный ID пользователя
   username      String          @unique // Уникальное имя пользователя
   email         String          @unique // Уникальный email пользователя
-  password_hash String // Хэш пароля пользователя
+  password_hash String? // Хэш пароля пользователя
+  provider      String?  // Провайдер авторизации (например, "google", "yandex")
+  provider_id   String?         @unique// ID пользователя у провайдера
   created_at    DateTime        @default(now()) // Дата создания аккаунта
   updated_at    DateTime        @updatedAt // Дата последнего обновления
   role          String          @default("user") // Роль пользователя: "user", "premium", "admin"
-  phone         String          @unique // Номер телефона 
-  first_name    String // Имя пользователя 
-  last_name     String // Фамилия пользователя
-  second_name   String // Отчество пользователя 
+  phone         String?          @unique // Номер телефона 
+  first_name    String? // Имя пользователя 
+  last_name     String? // Фамилия пользователя
+  second_name   String? // Отчество пользователя 
   subscription  Subscription? // Связь с подписками пользователя
   tests         Test[] // Связь с тестами, созданными пользователем
   user_tests    UserTest[] // Связь с прохождениями тестов пользователем

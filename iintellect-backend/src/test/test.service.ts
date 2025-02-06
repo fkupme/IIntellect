@@ -15,9 +15,6 @@ export class TestService {
     if (categoryId !== undefined) filters.categoryId = categoryId;
     if (themeId !== undefined) filters.themeId = themeId;
     if (subthemeId !== undefined) filters.subthemeId = subthemeId;
-  
-    try {
-      // Ищем тесты с учетом фильтров и связанных данных
       const tests = await this.prisma.test.findMany({
         where: filters,
         include: {
@@ -27,17 +24,10 @@ export class TestService {
         },
       });
   
-      // Если тесты не найдены, выбрасываем исключение
       if (!tests || tests.length === 0) {
         throw new NotFoundException('Тесты не найдены');
       }
-  
       return tests;
-    } catch (error) {
-      // Обрабатываем ошибки Prisma или другие исключения
-      console.error('Ошибка при поиске тестов:', error);
-      throw error;
-    }
   }
 
   // Создание теста

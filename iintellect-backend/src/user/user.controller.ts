@@ -8,15 +8,15 @@ import {
   Delete,
   ParseIntPipe,
 } from '@nestjs/common';
-import { UsersService } from './user.service';
+import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from '../DTO/user.dto';
-import { Public } from 'src/auth/decorators/public.decorator'
-import { AuthService } from 'src/auth/auth.service';
+import { Public } from '../auth/decorators/public.decorator';
+import { AuthService } from '../auth/auth.service';
 
 @Controller('user')
-export class UsersController {
+export class UserController {
   constructor(
-    private readonly usersService: UsersService,
+    private readonly usersService: UserService,
     private readonly authService: AuthService,
   ) {}
 
@@ -24,7 +24,6 @@ export class UsersController {
   @Public()
   async create(@Body() createUserDto: CreateUserDto) {
     const user = await this.usersService.create(createUserDto);
-
     return this.authService.login(user);
   }
 
